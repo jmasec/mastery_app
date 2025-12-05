@@ -9,3 +9,7 @@
 - allow user to add goals towards mastery
 - allow user to set rewards for milestones
 - allow user to set milestone intervals
+
+## Issues
+- Not saving progress bar value
+- Not saving changed username

@@ -1,9 +1,13 @@
 from mastery_app.lib.mastery_container import MasteryContainer, make_new_container 
-from mastery_app.lib.mastery_db import MasteryDB 
+from mastery_app.lib.mastery_db import MasteryDB
 import uuid
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+DB_PATH = SCRIPT_DIR / ".." / "db" / "my_database.db"
 
 class User:
-    def __init__(self, username, user_uuid = uuid.uuid4(), containers: dict[str, MasteryContainer] = {}, db = MasteryDB("../db/test.db")):
+    def __init__(self, username, user_uuid = uuid.uuid4(), containers: dict[str, MasteryContainer] = {}, db = MasteryDB(DB_PATH)):
         self.uuid = user_uuid
         self.username = username
         self.containers: dict[str, MasteryContainer] = containers
@@ -28,8 +32,12 @@ class User:
     def update_username(self, name):
         self.username = name
 
-def make_new_user(name):
+def add_container_db(user, name, db):
+    db.insert_container_db(name, str(user.uuid))
+
+def make_new_user(name, db) -> User:
     new_user = User(username=name)
+    db.insert_user_db(str(new_user.uuid), name)
     return new_user
 
 def make_user_from_db(user_rows, container_rows, db):
@@ -41,6 +49,3 @@ def make_user_from_db(user_rows, container_rows, db):
         user.containers[cont['name']] = temp_container
     
     return user
-
-def add_container_db():
-    pass

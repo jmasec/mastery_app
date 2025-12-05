@@ -2,14 +2,16 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 import time
-from ..lib.user import make_new_user, User, make_user_from_db
+from ..lib.user import User, make_new_user, make_user_from_db, add_container_db
 from ..lib.mastery_container import MasteryContainer
 from ..lib.mastery_db import MasteryDB
 
 
-
 class App:
-    def __init__(self, root, user = make_new_user("Default")):
+    def __init__(self, root, db, user = None):
+        if user is None:
+            user = make_new_user("Default", db)
+
         self.root = root
         self.root.title("Mastery Tracker")
 
@@ -17,6 +19,7 @@ class App:
         self.timer_running = False
         self.timer_start_time = None
         self.user = user
+        self.db = db
         self.max_hours = 10000.0
 
         for key,val in user.containers.items():
@@ -144,6 +147,7 @@ class App:
 
         # Add to user model
         self.user.new_container(name)
+        add_container_db(self.user, name, self.db)
 
         # Refresh UI
         self.refresh_ui()
@@ -253,7 +257,6 @@ class App:
         if not new_name:
             return
 
-        # ---- Your real backend update ----
         self.user.update_username(new_name)
 
         self.username_label.config(text=new_name)

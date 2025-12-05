@@ -5,7 +5,7 @@ import uuid
 
 class MasteryDB:
     # TODO: scrub data before running sql commands
-    def __init__(self, db_path):
+    def __init__(self, db_path = ""):
         self.db_path = db_path
 
         if os.path.exists(self.db_path):
@@ -83,12 +83,18 @@ class MasteryDB:
     
     def insert_container_db(self, name, user_id):
         with self.get_cursor() as cursor:
-            cursor.execute("INSERT OR IGNORE INTO containers (id, xp_level, level, name, user_uuid) VALUES (?,?,?,?,?)", (str(uuid.uuid4()),50.0, 'Novice', name, user_id))
+            cursor.execute("INSERT OR IGNORE INTO containers (id, xp_level, level, name, user_uuid) VALUES (?,?,?,?,?)", (str(uuid.uuid4()),0, 'Novice', name, user_id))
+
+    def update_container_db(self):
+        pass
+
+    def update_user_db(self):
+        pass
 
     def setup_mastery_db(self) -> tuple:
+        self._make_user_table()
+        self._make_container_table()
         if self.new_db:
-            self._make_user_table()
-            self._make_container_table()
             return ()
         else:
             return self.fetch_existing_db_data()
