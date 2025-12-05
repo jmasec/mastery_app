@@ -226,7 +226,8 @@ class App:
         self.progress_values[bar_name] = min(10000.0, self.progress_values[bar_name])
 
         # Apply to your user object
-        self.user.containers[bar_name].xp_level += hours_to_add
+        self.user.containers[bar_name].update_xp_level(hours_to_add)
+        self.db.update_container_db(self.user.containers[bar_name].uuid, self.user.containers[bar_name].xp_level ,self.user.containers[bar_name].level)
 
         # Refresh UI
         self.refresh_ui()
@@ -258,6 +259,7 @@ class App:
             return
 
         self.user.update_username(new_name)
+        self.db.update_user_db(self.user.uuid, new_name)
 
         self.username_label.config(text=new_name)
         self.username_entry.delete(0, tk.END)

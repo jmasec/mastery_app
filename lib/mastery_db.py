@@ -85,11 +85,22 @@ class MasteryDB:
         with self.get_cursor() as cursor:
             cursor.execute("INSERT OR IGNORE INTO containers (id, xp_level, level, name, user_uuid) VALUES (?,?,?,?,?)", (str(uuid.uuid4()),0, 'Novice', name, user_id))
 
-    def update_container_db(self):
-        pass
+    def update_container_db(self, id, xp_level, level):
+        with self.get_cursor() as cursor:
+            cursor.execute("""
+                UPDATE containers
+                SET xp_level = ?, level = ?
+                WHERE id = ?
+            """, (xp_level, level, id))
 
-    def update_user_db(self):
-        pass
+    def update_user_db(self, id, name):
+        with self.get_cursor() as cursor:
+            cursor.execute("""
+                UPDATE users
+                SET username = ?
+                WHERE id = ?
+            """, (name, id))
+
 
     def setup_mastery_db(self) -> tuple:
         self._make_user_table()
