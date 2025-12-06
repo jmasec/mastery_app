@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import threading
 import time
 from ..lib.user import User, make_new_user, make_user_from_db, add_container_db
@@ -30,6 +30,7 @@ class App:
         self.create_update_section()
         self.create_timer_section()
         self.create_add_bar_section()
+        self.create_delete_bar_section()
         self.create_progress_section()
 
         self.refresh_ui()
@@ -96,6 +97,22 @@ class App:
             # Default timer target if none selected
             if not self.timer_target.get():
                 self.timer_target.set(key)
+            
+        # === Delete bar dropdown ===
+        delete_menu = self.delete_bar_dropdown["menu"]
+        delete_menu.delete(0, "end")
+
+        for key in self.progress_values.keys():
+            delete_menu.add_command(
+                label=key,
+                command=lambda v=key: self.delete_bar_var.set(v)
+            )
+
+        # Set default if none
+        if not self.delete_bar_var.get() and self.progress_values:
+            first = list(self.progress_values.keys())[0]
+            self.delete_bar_var.set(first)
+
 
 
     def add_progress_bar(self, name):
@@ -172,10 +189,10 @@ class App:
     # Add Bar UI
     # ===============================================================
     def create_add_bar_section(self):
-        frame = ttk.LabelFrame(self.root, text="Add New Bar")
+        frame = ttk.LabelFrame(self.root, text="Add New XP Bar")
         frame.pack(fill="x", padx=10, pady=10)
 
-        ttk.Label(frame, text="Bar Name:").pack(side="left", padx=5)
+        ttk.Label(frame, text="XP Bar Name:").pack(side="left", padx=5)
 
         self.new_bar_entry = ttk.Entry(frame, width=20)
         self.new_bar_entry.pack(side="left", padx=5)
@@ -189,10 +206,132 @@ class App:
             self.new_bar_entry.delete(0, tk.END)
 
     # ===============================================================
+    # Delete Bar UI
+    # ===============================================================
+    def create_delete_bar_section(self):
+        frame = ttk.LabelFrame(self.root, text="Delete XP Bar")
+        frame.pack(fill="x", padx=10, pady=10)
+
+        ttk.Label(frame, text="Select bar:").pack(side="left", padx=5)
+
+        self.delete_bar_var = tk.StringVar(value="")
+
+        self.delete_bar_dropdown = tk.OptionMenu(frame, self.delete_bar_var, "")
+        self.delete_bar_dropdown.pack(side="left", padx=5)
+
+        ttk.Button(frame, text="Delete", command=self.delete_selected_bar).pack(side="left")
+
+
+
+    # def delete_bar_clicked(self):
+    #     name = self.delete_bar_var.get()
+
+    #     if not name or name not in self.progress_values:
+    #         messagebox.showerror("Error", "Please select a valid bar to delete.")
+    #         return
+
+    #     # Confirm deletion
+    #     if not messagebox.askyesno("Confirm Delete", f"Delete progress bar '{name}'?"):
+    #         return
+
+    #     # 1. Remove from UI
+    #     widgets = self.bar_widgets.pop(name, None)
+    #     if widgets:
+    #         widgets["frame"].destroy()
+
+    #     # 2. Remove from backend data
+    #     self.progress_values.pop(name, None)
+
+    #     # 3. Remove from user object
+    #     container = self.user.containers.pop(name, None)
+
+    #     # 4. Remove from DB if found
+    #     if container:
+    #         try:
+    #             self.db.delete_container_db(str(container.uuid))
+    #         except Exception as e:
+    #             print("DB deletion error:", e)
+
+    #     # 5. Rebuild dropdowns so removed bar disappears
+    #     self.rebuild_all_dropdowns()
+
+    #     # Refresh UI
+    #     self.refresh_ui()
+
+    def delete_selected_bar(self):
+        name = self.delete_bar_var.get()
+        if not name:
+            messagebox.showerror("Error", "No bar selected.")
+            return
+
+        if name not in self.progress_values:
+            messagebox.showerror("Error", "Bar not found.")
+            return
+
+        uuid_to_delete = self.user.containers[name].uuid
+
+        # Remove UI
+        widgets = self.bar_widgets.pop(name)
+        widgets["frame"].destroy()
+
+        # Remove backend data
+        self.progress_values.pop(name, None)
+        self.user.containers.pop(name, None)
+
+        # Remove from database
+        self.db.delete_container_db(str(uuid_to_delete))
+
+        self.rebuild_all_dropdowns()
+        
+        self.refresh_ui()
+
+
+
+    def rebuild_all_dropdowns(self):
+        # --- Manual update dropdown ---
+        manual_menu = self.update_bar_dropdown["menu"]
+        manual_menu.delete(0, "end")
+
+        # --- Timer dropdown ---
+        timer_menu = self.timer_target_dropdown["menu"]
+        timer_menu.delete(0, "end")
+
+        # --- Delete dropdown ---
+        delete_menu = self.delete_bar_dropdown["menu"]
+        delete_menu.delete(0, "end")
+
+        # Re-add all current bars
+        for name in self.progress_values.keys():
+            manual_menu.add_command(
+                label=name,
+                command=lambda v=name: self.selected_bar.set(v)
+            )
+            timer_menu.add_command(
+                label=name,
+                command=lambda v=name: self.timer_target.set(v)
+            )
+            delete_menu.add_command(
+                label=name,
+                command=lambda v=name: self.delete_bar_var.set(v)
+            )
+
+        # If nothing selected, reset
+        if self.selected_bar.get() not in self.progress_values:
+            self.selected_bar.set("")
+
+        if self.timer_target.get() not in self.progress_values:
+            self.timer_target.set("")
+
+        if self.delete_bar_var.get() not in self.progress_values:
+            self.delete_bar_var.set("")
+
+
+
+    # ===============================================================
     # Manual Update UI
     # ===============================================================
     def create_update_section(self):
-        frame = ttk.LabelFrame(self.root, text="Manual Update")
+        frame = ttk.LabelFrame(self.root, text="Add XP (hh:mm)")
         frame.pack(fill="x", padx=10, pady=10)
 
         self.selected_bar = tk.StringVar(value="")
@@ -227,42 +366,88 @@ class App:
 
         # Apply to your user object
         self.user.containers[bar_name].update_xp_level(hours_to_add)
-        self.db.update_container_db(self.user.containers[bar_name].uuid, self.user.containers[bar_name].xp_level ,self.user.containers[bar_name].level)
+        self.db.update_container_db(str(self.user.containers[bar_name].uuid), self.user.containers[bar_name].xp_level ,self.user.containers[bar_name].level)
 
         # Refresh UI
         self.refresh_ui()
 
 
+    # def create_user_section(self):
+    #     frame = ttk.LabelFrame(self.root, text="User")
+    #     frame.pack(fill="x", padx=10, pady=10)
+
+    #     # ttk.Label(frame, text="Username:").pack(side="left", padx=5)
+
+    #     self.username_label = ttk.Label(frame, text="")
+    #     self.username_label.pack(side="left", padx=5)
+
+    #     ttk.Label(frame, text="Change Username:").pack(side="left", padx=10)
+
+    #     self.username_entry = ttk.Entry(frame, width=20)
+    #     self.username_entry.pack(side="left", padx=5)
+
+    #     ttk.Button(frame, text="Save", command=self.update_username).pack(side="left")
+
     def create_user_section(self):
         frame = ttk.LabelFrame(self.root, text="User")
         frame.pack(fill="x", padx=10, pady=10)
 
-        ttk.Label(frame, text="Current Username:").pack(side="left", padx=5)
-
         self.username_label = ttk.Label(frame, text="")
         self.username_label.pack(side="left", padx=5)
 
-        ttk.Label(frame, text="New Username:").pack(side="left", padx=10)
+        ttk.Button(
+            frame, 
+            text="Change Username", 
+            command=self.open_username_popup
+        ).pack(side="right", padx=10)
 
-        self.username_entry = ttk.Entry(frame, width=20)
-        self.username_entry.pack(side="left", padx=5)
+    def open_username_popup(self):
+        popup = tk.Toplevel(self.root)
+        popup.title("Change Username")
+        popup.geometry("300x150")
+        popup.grab_set()   # make the window modal
 
-        ttk.Button(frame, text="Save", command=self.update_username).pack(side="left")
+        ttk.Label(popup, text="Enter new username:").pack(pady=10)
 
-    def update_username(self):
-        if not self.user:
-            print("User object not assigned yet")
-            return
+        entry = ttk.Entry(popup, width=25)
+        entry.pack()
+        entry.focus()
 
-        new_name = self.username_entry.get().strip()
-        if not new_name:
-            return
+        def save_and_close():
+            new_name = entry.get().strip()
+            if not new_name:
+                messagebox.showerror("Error", "Username cannot be empty.")
+                return
 
-        self.user.update_username(new_name)
-        self.db.update_user_db(self.user.uuid, new_name)
+            # Update user object
+            self.user.update_username(new_name)
+            self.db.update_user_db(self.user.uuid, new_name)
 
-        self.username_label.config(text=new_name)
-        self.username_entry.delete(0, tk.END)
+            # Refresh UI label
+            self.username_label.config(text=new_name)
+
+            popup.destroy()
+
+        ttk.Button(popup, text="Save", command=save_and_close).pack(pady=10)
+
+        # Optional: Enter = Save
+        popup.bind("<Return>", lambda e: save_and_close())
+
+
+    # def update_username(self):
+    #     if not self.user:
+    #         print("User object not assigned yet")
+    #         return
+
+    #     new_name = self.username_entry.get().strip()
+    #     if not new_name:
+    #         return
+
+    #     self.user.update_username(new_name)
+    #     self.db.update_user_db(self.user.uuid, new_name)
+
+    #     self.username_label.config(text=new_name)
+    #     self.username_entry.delete(0, tk.END)
 
     # ===============================================================
     # Timer UI + Timer Linking to Bar
@@ -277,7 +462,7 @@ class App:
         ttk.Button(frame, text="Start", command=self.start_timer).pack(side="left")
         ttk.Button(frame, text="Stop", command=self.stop_timer).pack(side="left")
 
-        ttk.Label(frame, text="Timer Controls Bar:").pack(side="left", padx=10)
+        ttk.Label(frame, text="XP bar:").pack(side="left", padx=10)
 
         # Dropdown of which bar the timer updates
         self.timer_target = tk.StringVar(value="")
@@ -368,6 +553,19 @@ class App:
         # Show username if you have a User object
         if self.user:
             self.username_label.config(text=self.user.username)
+
+            # ------ Delete Dropdown ------
+        delete_menu = self.delete_bar_dropdown["menu"]
+        delete_menu.delete(0, "end")
+
+        for key in self.progress_values.keys():
+            delete_menu.add_command(
+                label=key,
+                command=lambda v=key: self.delete_bar_var.set(v)
+            )
+
+        if self.progress_values and not self.delete_bar_var.get():
+            self.delete_bar_var.set(next(iter(self.progress_values)))
 
 
     def parse_hours_minutes(self, text):

@@ -100,7 +100,10 @@ class MasteryDB:
                 SET username = ?
                 WHERE id = ?
             """, (name, id))
-
+    
+    def delete_container_db(self, id):
+        with self.get_cursor() as cursor:
+            cursor.execute("DELETE FROM containers WHERE id = ?", (id,))
 
     def setup_mastery_db(self) -> tuple:
         self._make_user_table()

@@ -10,3 +10,6 @@
 - allow user to set rewards for milestones
 - allow user to set milestone intervals
 
+## Issues
+- Delete XP bars (update user and db)
+    - Issue with order of GUI saying container dict is empty
