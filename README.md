@@ -1,6 +1,10 @@
 # Mastery App
 - XP representation of mastery , XP being time
 
+```bash
+python3 -m mastery_app.src.main
+```
+
 ## Features
 - allow user to add number of time measurement to add XP
 - allow user to start timer when a program is running

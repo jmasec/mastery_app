@@ -32,8 +32,8 @@ class User:
     def update_username(self, name):
         self.username = name
 
-def add_container_db(user, name, db):
-    db.insert_container_db(name, str(user.uuid))
+def add_container_db(cont_uuid, user, name, db):
+    db.insert_container_db(cont_uuid, name, str(user.uuid))
 
 def make_new_user(name, db) -> User:
     new_user = User(username=name)

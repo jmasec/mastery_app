@@ -163,8 +163,8 @@ class App:
             self.timer_target.set(name)
 
         # Add to user model
-        self.user.new_container(name)
-        add_container_db(self.user, name, self.db)
+        container : MasteryContainer | None = self.user.new_container(name)
+        add_container_db(container.uuid, self.user, name, self.db)
 
         # Refresh UI
         self.refresh_ui()
@@ -221,42 +221,6 @@ class App:
 
         ttk.Button(frame, text="Delete", command=self.delete_selected_bar).pack(side="left")
 
-
-
-    # def delete_bar_clicked(self):
-    #     name = self.delete_bar_var.get()
-
-    #     if not name or name not in self.progress_values:
-    #         messagebox.showerror("Error", "Please select a valid bar to delete.")
-    #         return
-
-    #     # Confirm deletion
-    #     if not messagebox.askyesno("Confirm Delete", f"Delete progress bar '{name}'?"):
-    #         return
-
-    #     # 1. Remove from UI
-    #     widgets = self.bar_widgets.pop(name, None)
-    #     if widgets:
-    #         widgets["frame"].destroy()
-
-    #     # 2. Remove from backend data
-    #     self.progress_values.pop(name, None)
-
-    #     # 3. Remove from user object
-    #     container = self.user.containers.pop(name, None)
-
-    #     # 4. Remove from DB if found
-    #     if container:
-    #         try:
-    #             self.db.delete_container_db(str(container.uuid))
-    #         except Exception as e:
-    #             print("DB deletion error:", e)
-
-    #     # 5. Rebuild dropdowns so removed bar disappears
-    #     self.rebuild_all_dropdowns()
-
-    #     # Refresh UI
-    #     self.refresh_ui()
 
     def delete_selected_bar(self):
         name = self.delete_bar_var.get()

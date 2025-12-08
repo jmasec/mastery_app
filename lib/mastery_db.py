@@ -48,7 +48,7 @@ class MasteryDB:
                     id TEXT PRIMARY KEY,
                     xp_level REAL,
                     level TEXT,
-                    name TEXT UNIQUE,
+                    name TEXT,
                     user_uuid TEXT,
                     FOREIGN KEY (user_uuid) REFERENCES users(id)
                 )
@@ -79,11 +79,11 @@ class MasteryDB:
 
     def insert_user_db(self, id, username):
         with self.get_cursor() as cursor:
-            cursor.execute("INSERT OR IGNORE INTO users (id, username) VALUES (?,?)", (id, username))
+            cursor.execute("INSERT INTO users (id, username) VALUES (?,?)", (id, username))
     
-    def insert_container_db(self, name, user_id):
+    def insert_container_db(self, cont_uuid,  name, user_id):
         with self.get_cursor() as cursor:
-            cursor.execute("INSERT OR IGNORE INTO containers (id, xp_level, level, name, user_uuid) VALUES (?,?,?,?,?)", (str(uuid.uuid4()),0, 'Novice', name, user_id))
+            cursor.execute("INSERT INTO containers (id, xp_level, level, name, user_uuid) VALUES (?,?,?,?,?)", (str(cont_uuid),0, 'Novice', name, user_id))
 
     def update_container_db(self, id, xp_level, level):
         with self.get_cursor() as cursor:
