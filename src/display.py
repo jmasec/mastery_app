@@ -140,7 +140,7 @@ class App:
         bar = ttk.Progressbar(row, maximum=10000.0)
         bar.pack(side="left", fill="x", expand=True)
 
-        level_lbl = ttk.Label(row, text="Novice", width=12, font=self.custom_font)
+        level_lbl = ttk.Label(row, text="Novice", width=12)
         level_lbl.pack(side="left", padx=5)
 
         # Value label (right)
