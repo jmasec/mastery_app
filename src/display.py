@@ -15,7 +15,7 @@ class App:
         self.root = root
         self.root.title("Mastery Tracker")
 
-        self.progress_values = {}   # your backend values can sync here
+        self.progress_values = {} 
         self.timer_running = False
         self.timer_start_time = None
         self.user = user
@@ -164,7 +164,8 @@ class App:
 
         # Add to user model
         container : MasteryContainer | None = self.user.new_container(name)
-        add_container_db(container.uuid, self.user, name, self.db)
+        if container:
+            add_container_db(container.uuid, self.user, name, self.db)
 
         # Refresh UI
         self.refresh_ui()
@@ -336,22 +337,6 @@ class App:
         self.refresh_ui()
 
 
-    # def create_user_section(self):
-    #     frame = ttk.LabelFrame(self.root, text="User")
-    #     frame.pack(fill="x", padx=10, pady=10)
-
-    #     # ttk.Label(frame, text="Username:").pack(side="left", padx=5)
-
-    #     self.username_label = ttk.Label(frame, text="")
-    #     self.username_label.pack(side="left", padx=5)
-
-    #     ttk.Label(frame, text="Change Username:").pack(side="left", padx=10)
-
-    #     self.username_entry = ttk.Entry(frame, width=20)
-    #     self.username_entry.pack(side="left", padx=5)
-
-    #     ttk.Button(frame, text="Save", command=self.update_username).pack(side="left")
-
     def create_user_section(self):
         frame = ttk.LabelFrame(self.root, text="User")
         frame.pack(fill="x", padx=10, pady=10)
@@ -394,24 +379,7 @@ class App:
 
         ttk.Button(popup, text="Save", command=save_and_close).pack(pady=10)
 
-        # Optional: Enter = Save
         popup.bind("<Return>", lambda e: save_and_close())
-
-
-    # def update_username(self):
-    #     if not self.user:
-    #         print("User object not assigned yet")
-    #         return
-
-    #     new_name = self.username_entry.get().strip()
-    #     if not new_name:
-    #         return
-
-    #     self.user.update_username(new_name)
-    #     self.db.update_user_db(self.user.uuid, new_name)
-
-    #     self.username_label.config(text=new_name)
-    #     self.username_entry.delete(0, tk.END)
 
     # ===============================================================
     # Timer UI + Timer Linking to Bar

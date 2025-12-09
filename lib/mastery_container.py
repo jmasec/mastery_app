@@ -13,12 +13,15 @@ class MasteryContainer:
 
     # define levels
 
-    def __init__(self, name, cont_uuid = uuid.uuid4(), xp_level = 0.0, level = "New"):
+    def __init__(self, name, cont_uuid = None, xp_level = 0.0, level = "New"):
         self.uuid = cont_uuid
         #self.milestone = Milestone()
         self.xp_level = xp_level
         self.level = level
         self.container_name = name
+
+        if not self.uuid:
+            self.uuid = uuid.uuid4()
 
     def update_name(self, name):
         self.container_name = name
