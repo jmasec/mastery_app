@@ -13,7 +13,7 @@ class MasteryContainer:
 
     # define levels
 
-    def __init__(self, name, cont_uuid = None, xp_level = 0.0, level = "New"):
+    def __init__(self, name, cont_uuid = None, xp_level = 0.0, level = "Novice"):
         self.uuid = cont_uuid
         #self.milestone = Milestone()
         self.xp_level = xp_level

@@ -72,6 +72,10 @@ class App:
             normalized = max(0.0, min(100.0, float(val)))
             bar["value"] = normalized * 100  # multiplied by 100 for precision
 
+            level_text = self.user.containers[key].level if key in self.user.containers else "Novice"
+            level_label = ttk.Label(row, text=level_text, width=12)
+            level_label.pack(side="left", padx=5)
+
             # Value label showing hours/minutes/float
             value_label = ttk.Label(row, text=f"{val:.2f}")
             value_label.pack(side="right", padx=5)
@@ -82,6 +86,7 @@ class App:
                 "label": name_label,
                 "bar": bar,
                 "value_label": value_label,
+                "level_label": level_label,
             }
 
             # Add to manual dropdown
@@ -135,6 +140,9 @@ class App:
         bar = ttk.Progressbar(row, maximum=10000.0)
         bar.pack(side="left", fill="x", expand=True)
 
+        level_lbl = ttk.Label(row, text="Novice", width=12, font=self.custom_font)
+        level_lbl.pack(side="left", padx=5)
+
         # Value label (right)
         value_label = ttk.Label(row, text="0h 0m")
         value_label.pack(side="right", padx=5)
@@ -145,6 +153,7 @@ class App:
             "label": name_label,
             "bar": bar,
             "value_label": value_label,
+            "level_label": level_lbl,
         }
 
         # Add to dropdowns
@@ -480,6 +489,10 @@ class App:
             # Display pretty formatted HHh MMm
             widgets["value_label"].config(
                 text=self.format_hours_minutes(hours)
+            )
+
+            widgets["level_label"].config(
+                text=self.user.containers[name].level
             )
 
         # Show username if you have a User object

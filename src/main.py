@@ -1,7 +1,6 @@
 from mastery_app.src.display import App, User, MasteryContainer, MasteryDB, make_user_from_db, make_new_user
 import tkinter as tk
 from pathlib import Path
-import uuid
 
 if __name__ == "__main__":
 
@@ -19,5 +18,14 @@ if __name__ == "__main__":
         user = make_new_user("Default Name", db)
 
     root = tk.Tk()
+    w, h = 900, 700
+    root.geometry(f"{w}x{h}")
+
+    root.update_idletasks()
+    x = (root.winfo_screenwidth() - w) // 2
+    y = (root.winfo_screenheight() - h) // 2
+    root.geometry(f"{w}x{h}+{x}+{y}")
+
+    root.minsize(800, 600)
     App(root, db, user)
     root.mainloop()

@@ -7,11 +7,14 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 DB_PATH = SCRIPT_DIR / ".." / "db" / "my_database.db"
 
 class User:
-    def __init__(self, username, user_uuid = uuid.uuid4(), containers: dict[str, MasteryContainer] = {}, db = MasteryDB(DB_PATH)):
+    def __init__(self, username, user_uuid = None, containers: dict[str, MasteryContainer] = {}, db = MasteryDB(DB_PATH)):
         self.uuid = user_uuid
         self.username = username
         self.containers: dict[str, MasteryContainer] = containers
         self.db = db
+
+        if not self.uuid:
+            self.uuid = uuid.uuid4()
 
     def new_container(self, name: str):
         new_container = make_new_container(name=name)
