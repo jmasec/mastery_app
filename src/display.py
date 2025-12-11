@@ -450,6 +450,7 @@ class App:
 
                 # Add it to the bar's stored hours
                 self.progress_values[target] += hours_increment
+                self.user.containers[target].xp_level += hours_increment
 
                 # Ensure in 0–10,000 range
                 self.progress_values[target] = min(10000.0, max(0.0, self.progress_values[target]))
@@ -458,6 +459,9 @@ class App:
                 self.refresh_ui()
 
             time.sleep(0.2)
+        target = self.timer_target.get()
+        if target:
+            self.db.update_container_db(str(self.user.containers[target].uuid), self.user.containers[target].xp_level ,self.user.containers[target].level)
 
 
 
