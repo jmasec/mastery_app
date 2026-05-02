@@ -12,6 +12,9 @@ class MasteryDB:
             self.new_db = False
         else:
             self.new_db = True
+            # create the file
+            with open(db_path, "x"):
+                pass
 
     @contextlib.contextmanager
     def get_cursor(self):

@@ -5,7 +5,7 @@ from pathlib import Path
 if __name__ == "__main__":
 
     SCRIPT_DIR = Path(__file__).resolve().parent
-    DB_PATH = SCRIPT_DIR / ".." / "db" / "my_database.db"
+    DB_PATH = SCRIPT_DIR / ".." / "db" / "mastery.db"
     db = MasteryDB(DB_PATH)
 
 
