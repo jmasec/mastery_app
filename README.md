@@ -11,8 +11,10 @@ python3 -m mastery_app.src.main
 - allow user to start a timer 
 - 10k hours is mastery, you can go past
 - allow user to add goals towards mastery
-- allow user to set rewards for milestones
-- allow user to set milestone intervals
+<!-- - allow user to set rewards for milestones
+- allow user to set milestone intervals -->
 
 ## To-do
-- Milestones
+- Move to flask webpage instead of tkinter gui
+- Milestones (popup when milestone is reached, default ones at 10, 100, 1000, etc, badges on username)
+- Better Timer to use that will add to your category, take up a page
